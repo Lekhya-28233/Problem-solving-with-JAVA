@@ -1,76 +1,122 @@
-import java.io.*;
-import java.util.*;
-import java.util.stream.*;
-import static java.util.stream.Collectors.toList;
+#include <bits/stdc++.h>
 
-class Result {
+using namespace std;
 
-    /*
-     * Complete the 'birthday' function below.
-     *
-     * The function is expected to return an INTEGER.
-     * The function accepts following parameters:
-     *  1. INTEGER_ARRAY s
-     *  2. INTEGER d
-     *  3. INTEGER m
-     */
+string ltrim(const string &);
+string rtrim(const string &);
+vector<string> split(const string &);
 
-    public static int birthday(List<Integer> s, int d, int m) {
+/*
+ * Complete the 'birthday' function below.
+ *
+ * The function is expected to return an INTEGER.
+ * The function accepts following parameters:
+ *  1. INTEGER_ARRAY s
+ *  2. INTEGER d
+ *  3. INTEGER m
+ */
 
-        int count = 0;
+int birthday(vector<int> s, int d, int m) {
+    int count = 0;
+    int sum = 0;
 
-        // Check every contiguous segment of length m
-        for (int i = 0; i <= s.size() - m; i++) {
-
-            int sum = 0;
-
-            for (int j = i; j < i + m; j++) {
-                sum += s.get(j);
-            }
-
-            if (sum == d) {
-                count++;
-            }
-        }
-
-        return count;
+    // Calculate the sum of the first window of size m
+    for (int i = 0; i < m && i < s.size(); i++) {
+        sum += s[i];
     }
+
+    if (m <= s.size() && sum == d) {
+        count++;
+    }
+
+    // Slide the window across the array
+    for (int i = m; i < s.size(); i++) {
+        sum += s[i];
+        sum -= s[i - m];
+
+        if (sum == d) {
+            count++;
+        }
+    }
+
+    return count;
 }
 
-public class Solution {
+int main()
+{
+    ofstream fout(getenv("OUTPUT_PATH"));
 
-    public static void main(String[] args) throws IOException {
+    string n_temp;
+    getline(cin, n_temp);
 
-        BufferedReader bufferedReader =
-            new BufferedReader(new InputStreamReader(System.in));
+    int n = stoi(ltrim(rtrim(n_temp)));
 
-        BufferedWriter bufferedWriter =
-            new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+    string s_temp_temp;
+    getline(cin, s_temp_temp);
 
-        int n = Integer.parseInt(bufferedReader.readLine().trim());
+    vector<string> s_temp = split(rtrim(s_temp_temp));
 
-        List<Integer> s = Stream.of(
-                bufferedReader.readLine()
-                    .replaceAll("\\s+$", "")
-                    .split(" ")
-            )
-            .map(Integer::parseInt)
-            .collect(toList());
+    vector<int> s(n);
 
-        String[] firstMultipleInput =
-            bufferedReader.readLine()
-                .replaceAll("\\s+$", "")
-                .split(" ");
+    for (int i = 0; i < n; i++) {
+        int s_item = stoi(s_temp[i]);
 
-        int d = Integer.parseInt(firstMultipleInput[0]);
-        int m = Integer.parseInt(firstMultipleInput[1]);
-
-        int result = Result.birthday(s, d, m);
-
-        bufferedWriter.write(String.valueOf(result));
-        bufferedWriter.newLine();
-
-        bufferedReader.close();
-        bufferedWriter.close();
+        s[i] = s_item;
     }
+
+    string first_multiple_input_temp;
+    getline(cin, first_multiple_input_temp);
+
+    vector<string> first_multiple_input = split(rtrim(first_multiple_input_temp));
+
+    int d = stoi(first_multiple_input[0]);
+
+    int m = stoi(first_multiple_input[1]);
+
+    int result = birthday(s, d, m);
+
+    fout << result << "\n";
+
+    fout.close();
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        s.end()
+    );
+
+    return s;
+}
+
+vector<string> split(const string &str) {
+    vector<string> tokens;
+
+    string::size_type start = 0;
+    string::size_type end = 0;
+
+    while ((end = str.find(" ", start)) != string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+
+        start = end + 1;
+    }
+
+    tokens.push_back(str.substr(start));
+
+    return tokens;
 }
